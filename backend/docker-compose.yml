@@ -1,0 +1,49 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: vendly
+      POSTGRES_PASSWORD: vendly
+      POSTGRES_DB: user_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - private
+      - public
+
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api-gateway:/app
+      - /app/node_modules
+    depends_on:
+      - user-service
+    networks:
+      - private
+      - public
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    environment:
+      DATABASE_URL: postgresql://vendly:vendly@postgres:5432/user_db
+    volumes:
+      - ./user-service:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - private
+
+volumes:
+  db-data:
+networks:
+  private:
+  public:

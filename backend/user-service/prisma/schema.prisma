@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String  @id @default(uuid())
+  firstName     String
+  lastName      String?
+  username      String  @unique
+  email         String  @unique
+  password_hash String
+
+  gender       Gender?
+  dob          Int?
+  profileImage String?
+  bio          String?
+
+  verified Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  CUSTOM
+}
+
+model UserOTPVerification {
+  id        String   @id @default(uuid())
+  userId    String
+  otp       String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+enum STATUS {
+  SUCCESS
+  FAILED
+  PENDING
+  EXPIRED
+  INVALID
+  QUEUED
+  PROCESSING
+}
