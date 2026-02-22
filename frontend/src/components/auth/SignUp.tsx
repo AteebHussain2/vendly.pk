@@ -9,14 +9,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { FieldGroup } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { signUp } from "@/actions/auth";
-import Image from "next/image";
 import { toast } from "sonner";
+import Image from "next/image";
 import Link from "next/link";
 
 export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
+    const router = useRouter();
     const form = useForm<typeSignUpSchema>({
         resolver: zodResolver(signUpSchema),
         defaultValues: {
@@ -37,11 +38,19 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
 
         onSuccess: (result) => {
             if (!result.success) {
-                toast.error(result.message);
-                return;
-            }
+                if (result.field) {
+                    form.setError(result.field, {
+                        type: "server",
+                        message: result.message,
+                    });
+                    return;
+                }
 
-            toast.success(result.message ?? "Account created successfully!");
+                toast.error(result.message, { id: "signup" });
+                return;
+            };
+
+            toast.success(result.message ?? "Account created successfully!", { id: "signup" });
 
             const params = new URLSearchParams({
                 userId: result.data?.userId ?? "",
@@ -49,13 +58,18 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
                 redirectTo: redirectUrl,
             });
 
-            redirect(`/verification?${params.toString()}`);
+            router.push(`/verification?${params.toString()}`);
         },
 
         onError: (error: Error) => {
-            toast.error(error.message ?? "Something went wrong. Please try again.");
+            toast.error(error.message ?? "Something went wrong. Please try again.", { id: "signup" });
         },
     });
+
+    const onSubmit = (data: typeSignUpSchema) => {
+        toast.loading("Creating your account...", { id: "signup" });
+        mutate(data);
+    };
 
     return (
         <Card className="w-full max-w-lg shadow-lg">
@@ -74,7 +88,7 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
             <CardContent>
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit((values) => mutate(values))}
+                        onSubmit={form.handleSubmit(onSubmit)}
                         className="space-y-5"
                         noValidate
                     >
@@ -252,10 +266,10 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
                         {/* Submit */}
                         <Button
                             type="submit"
-                            className="w-full"
-                            disabled={form.formState.isSubmitting}
+                            className="w-full cursor-pointer!"
+                            disabled={form.formState.isSubmitting || isPending}
                         >
-                            {form.formState.isSubmitting ? "Creating account…" : "Create Account"}
+                            {form.formState.isSubmitting || isPending ? "Creating account…" : "Create Account"}
                         </Button>
                     </form>
                 </Form>

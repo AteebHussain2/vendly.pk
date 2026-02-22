@@ -3,6 +3,7 @@ import { Geist_Mono, Poppins } from "next/font/google";
 import "./globals.css";
 import { Analytics } from '@vercel/analytics/next';
 import AppProvider from "@/components/providers/AppProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -74,6 +75,7 @@ export default function RootLayout({
         <AppProvider>
           {children}
           <Analytics />
+          <Toaster />
         </AppProvider>
       </body>
     </html>

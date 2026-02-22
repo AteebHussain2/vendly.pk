@@ -24,12 +24,11 @@ const app = new Elysia()
 
     // signin user by creating account
     .post('/signin', async ({ request, status, jwt, cookie: { auth } }) => {
-        const { firstName, lastName, username, email, password, privacyPolicy, newsletter }: TypeUser = await request.body?.json();
+        const data: TypeUser = await request.body?.json();
 
-        if (!firstName || !email || !password || !username || !privacyPolicy) return status(415, "Invalid or Missing inputs!");
+        const res = await signInUser(data)
 
-        const res = await signInUser(firstName, lastName, email, password, username, privacyPolicy, newsletter)
-        if (!res.data) return status(res.code, { message: res.message, data: res?.data });
+        if (!res.data) return status(res.status, { message: res.message, field: res.field });
 
         const token = await jwt.sign(res?.data)
 
@@ -40,7 +39,7 @@ const app = new Elysia()
             path: '/'
         })
 
-        return status(res.code, { message: res.message, data: res.data });
+        return status(res.status, { message: res.message, data: res.data });
     })
 
     // login user with credentails
@@ -113,7 +112,7 @@ const app = new Elysia()
 
         const res = await verifyOTP(userId, otp);
 
-        return status(res.code, res.message)
+        return status(res.status, res.message)
     })
 
     // resend OTP
@@ -123,7 +122,7 @@ const app = new Elysia()
 
         const res = await resendOTPVerificationEmail(userId, email);
 
-        return status(res.code, { message: res.message, data: res.data })
+        return status(res.status, { message: res.message, data: res.data })
     })
     .listen(3000)
 

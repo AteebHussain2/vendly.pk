@@ -43,6 +43,7 @@ const app = new Elysia()
     },
 
     proxyTo: async (serviceName: string, subPath: string, req: Request, userId?: string) => {
+      console.log("REQUEST PROXY TO: ", serviceName, subPath, userId)
       const targetHost = SERVICE_MAP[serviceName as keyof typeof SERVICE_MAP];
       if (!targetHost) {
         set.status = 404;

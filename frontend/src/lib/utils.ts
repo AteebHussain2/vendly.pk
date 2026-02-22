@@ -7,8 +7,8 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getUrl(path: string) {
-  const baseUrl = process.env.SERVER_URL ?? 'http://localhost';
-  return new URL(path, baseUrl).toString();
+  const baseUrl = process.env.SERVER_URL ?? 'http://localhost:3001';
+  return new URL("/api/v1" + path, baseUrl).toString();
 }
 
 export function getRedirectUrl(searchParams: URLSearchParams): string {

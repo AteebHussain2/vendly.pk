@@ -1,9 +1,9 @@
 import 'dotenv';
+import { add, isFuture } from 'date-fns';
 import { prisma } from "../lib/prisma";
 import nodemailer from 'nodemailer';
-import { add, isFuture } from 'date-fns';
 import bcrypt from 'bcrypt';
-import { STATUS } from '../lib/generated/prisma/enums';
+import type { TypeUser } from '../lib/types';
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -50,7 +50,7 @@ export async function getUserByEmail(email: string) {
 export async function getUserByUsername(username: string) {
     return await prisma.user.findUnique({
         where: {
-            email: username,
+            username: username,
         },
         select: {
             id: true,
@@ -60,33 +60,31 @@ export async function getUserByUsername(username: string) {
     })
 }
 
-export async function signInUser(
-    firstName: string,
-    lastName: string,
-    email: string,
-    password: string,
-    username: string,
-    newsletter: boolean = false,
-    privacyPolicy: boolean
-) {
+export async function signInUser(data: TypeUser) {
+    const { firstName, lastName, username, email, password, privacyPolicy, newsletter } = data
+
     try {
-        if (!/^[a-zA-Z]*$/.test(firstName)) {
-            return { code: 400, status: STATUS.FAILED, message: "Name should contain only A-Z a-z" }
-        } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
-            return { code: 400, status: STATUS.FAILED, message: "Email should be of type email@example.com" }
-        } else if (password.length < 8) {
-            return { code: 400, status: STATUS.FAILED, message: "Password should be of more than 8 characters" }
-        } else if (!/^[a-z0-9A-Z_]{3,16}$/.test(username)) {
-            return { code: 400, status: STATUS.FAILED, message: "Username contains invalid characters" }
-        } else if (!privacyPolicy) {
-            return { code: 400, status: STATUS.FAILED, message: "You must agree to terms & conditions" }
+        if (!privacyPolicy) {
+            return { status: 400, message: "You must agree to terms & conditions", field: "privacyPolicy" }
+        }
+        else if (!/^[a-zA-Z]*$/.test(firstName)) {
+            return { status: 400, message: "Name should contain only A-Z a-z", field: "firstName" }
+        }
+        else if (!/^[a-z0-9A-Z_]{3,16}$/.test(username)) {
+            return { status: 400, message: "Username contains invalid characters", field: "username" }
+        }
+        else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            return { status: 400, message: "Email should be of type email@example.com", field: "email" }
+        }
+        else if (password.length < 8) {
+            return { status: 400, message: "Password should be of more than 8 characters", field: "password" }
         }
 
-        const emailExists = await getUserByEmail(email)
-        if (emailExists) return { code: 400, status: STATUS.FAILED, message: "Email already exists! LogIn" }
-
         const usernameExists = await getUserByUsername(username)
-        if (usernameExists) return { code: 400, status: STATUS.FAILED, message: "Username is occupied" }
+        if (usernameExists) return { status: 400, message: `Username '${username}' is not available`, field: "username" }
+
+        const emailExists = await getUserByEmail(email)
+        if (emailExists) return { status: 400, message: "Account already exists! Try to Login", field: "email" }
 
         const password_hash = await bcrypt.hash(password, 10);
 
@@ -103,9 +101,10 @@ export async function signInUser(
 
         await sendOTPVerificationEmail(user?.id, email)
 
-        return { code: 200, status: STATUS.SUCCESS, message: "Account created successfully!", data: { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, username: user.username, email: user.email, refreshed: false } }
+        return { status: 200, message: "Account created successfully!", data: { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, username: user.username, email: user.email, refreshed: false } }
     } catch (error) {
-        return { code: 500, status: STATUS.FAILED, message: "Internal Server Error!" };
+        console.error(error)
+        return { status: 500, message: "Internal Server Error!" };
     }
 }
 
@@ -186,10 +185,10 @@ export async function sendOTPVerificationEmail(userId: string, email: string) {
 
         await transporter.sendMail(mailOptions);
 
-        return { code: 200, status: STATUS.PENDING, message: 'Verification email sent', data: { userId, email } };
+        return { status: 200, message: 'Verification email sent', data: { userId, email } };
     } catch (error) {
         console.error(error);
-        return { code: 500, status: STATUS.FAILED, message: 'Internal Server Error!' };
+        return { status: 500, message: 'Internal Server Error!' };
     }
 }
 
@@ -204,14 +203,14 @@ export async function verifyOTP(userId: string, otp: string) {
             }
         });
 
-        if (!UserOTPRecord) return { code: 400, status: STATUS.FAILED, message: "OTP Record not found" }
+        if (!UserOTPRecord) return { status: 400, message: "OTP Record not found" }
         if (!isFuture(UserOTPRecord?.expiresAt)) {
             await prisma.userOTPVerification.deleteMany({ where: { userId } })
-            return { code: 400, status: STATUS.FAILED, message: "OTP has expired" }
+            return { status: 400, message: "OTP has expired" }
         }
 
         const verified = await bcrypt.compare(otp, UserOTPRecord.otp)
-        if (!verified) return { code: 400, status: STATUS.FAILED, message: "Incorrect OTP, Account not verified!" }
+        if (!verified) return { status: 400, message: "Incorrect OTP, Account not verified!" }
 
         await prisma.user.update({
             where: { id: userId },
@@ -219,10 +218,10 @@ export async function verifyOTP(userId: string, otp: string) {
         });
         await prisma.userOTPVerification.deleteMany({ where: { userId } })
 
-        return { code: 200, status: STATUS.SUCCESS, message: "User account has been verified!" }
+        return { status: 200, message: "User account has been verified!" }
     } catch (error) {
         console.error(error)
-        return { code: 500, status: STATUS.FAILED, message: "Internal Server Error!" }
+        return { status: 500, message: "Internal Server Error!" }
     }
 }
 
@@ -232,6 +231,6 @@ export async function resendOTPVerificationEmail(userId: string, email: string) 
         return await sendOTPVerificationEmail(userId, email)
     } catch (error) {
         console.error(error)
-        return { code: 500, status: STATUS.FAILED, message: "Internal Server Error!" }
+        return { status: 500, message: "Internal Server Error!" }
     }
 }
