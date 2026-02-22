@@ -4,10 +4,14 @@ export type TypeUser = {
     email: string,
     password: string,
     username: string
+
     gender?: Gender,
     age?: number,
     image?: string,
-    bio?: string
+    bio?: string,
+
+    privacyPolicy: boolean,
+    newsletter: boolean,
 }
 
 export type TypeLogIn = {

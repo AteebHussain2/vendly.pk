@@ -3,7 +3,6 @@ import type { TypeLogIn, TypeUser } from "./lib/types";
 import { importPrivateKey } from "./lib/keys";
 import { jwt } from '@elysiajs/jwt';
 import { Elysia, t } from 'elysia';
-import { STATUS } from "./lib/generated/prisma/enums";
 
 const rawPrivate = await Bun.file('./private.pem').text();
 const privateKey = await importPrivateKey(rawPrivate);
@@ -23,13 +22,13 @@ const app = new Elysia()
         })
     )
 
-    // signin user with credentials
+    // signin user by creating account
     .post('/signin', async ({ request, status, jwt, cookie: { auth } }) => {
-        const { firstName, lastName, email, password, username }: TypeUser = await request.body?.json();
+        const { firstName, lastName, username, email, password, privacyPolicy, newsletter }: TypeUser = await request.body?.json();
 
-        if (!firstName || !email || !password || !username) return status(415, "Invalid or Missing inputs!");
+        if (!firstName || !email || !password || !username || !privacyPolicy) return status(415, "Invalid or Missing inputs!");
 
-        const res = await signInUser(firstName, lastName, email, password, username)
+        const res = await signInUser(firstName, lastName, email, password, username, privacyPolicy, newsletter)
         if (!res.data) return status(res.code, { message: res.message, data: res?.data });
 
         const token = await jwt.sign(res?.data)

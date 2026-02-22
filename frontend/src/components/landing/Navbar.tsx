@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ThemeToggle } from "../providers/ThemeToggle";
 
 const navLinks = [
   { href: "#how-it-works", label: "How It Works" },
@@ -44,6 +45,7 @@ export default function Navbar() {
 
           {/* Desktop Right Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             {/* <UserButton /> */}
           </div>
 
@@ -76,6 +78,7 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
+            <ThemeToggle />
             {/* <UserButton /> */}
           </div>
         )}

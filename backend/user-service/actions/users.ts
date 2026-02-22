@@ -60,7 +60,15 @@ export async function getUserByUsername(username: string) {
     })
 }
 
-export async function signInUser(firstName: string, lastName: string, email: string, password: string, username: string) {
+export async function signInUser(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+    username: string,
+    newsletter: boolean = false,
+    privacyPolicy: boolean
+) {
     try {
         if (!/^[a-zA-Z]*$/.test(firstName)) {
             return { code: 400, status: STATUS.FAILED, message: "Name should contain only A-Z a-z" }
@@ -70,10 +78,12 @@ export async function signInUser(firstName: string, lastName: string, email: str
             return { code: 400, status: STATUS.FAILED, message: "Password should be of more than 8 characters" }
         } else if (!/^[a-z0-9A-Z_]{3,16}$/.test(username)) {
             return { code: 400, status: STATUS.FAILED, message: "Username contains invalid characters" }
+        } else if (!privacyPolicy) {
+            return { code: 400, status: STATUS.FAILED, message: "You must agree to terms & conditions" }
         }
 
         const emailExists = await getUserByEmail(email)
-        if (emailExists) return { code: 400, status: STATUS.FAILED, message: "User already exists" }
+        if (emailExists) return { code: 400, status: STATUS.FAILED, message: "Email already exists! LogIn" }
 
         const usernameExists = await getUserByUsername(username)
         if (usernameExists) return { code: 400, status: STATUS.FAILED, message: "Username is occupied" }
@@ -87,12 +97,13 @@ export async function signInUser(firstName: string, lastName: string, email: str
                 email,
                 password_hash,
                 username,
+                newsletter,
             },
         });
 
-        const verifyEmail = await sendOTPVerificationEmail(user?.id, email)
+        await sendOTPVerificationEmail(user?.id, email)
 
-        return { code: 200, status: STATUS.SUCCESS, message: "User has been created!", data: { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, refreshed: false, verifyEmail } }
+        return { code: 200, status: STATUS.SUCCESS, message: "Account created successfully!", data: { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, username: user.username, email: user.email, refreshed: false } }
     } catch (error) {
         return { code: 500, status: STATUS.FAILED, message: "Internal Server Error!" };
     }
