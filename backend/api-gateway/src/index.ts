@@ -3,6 +3,7 @@ import { SERVICE_MAP } from './services';
 import { importPublicKey } from './keys';
 import { jwt } from '@elysiajs/jwt';
 import { Elysia, t } from 'elysia';
+import cors from '@elysiajs/cors';
 
 const rawPublic = await Bun.file('./public.pem').text();
 const publicKey = await importPublicKey(rawPublic);
@@ -22,6 +23,23 @@ const app = new Elysia()
     })
   )
   .use(bearer())
+  .use(cors({
+    origin(request) {
+      const allowedOrigins = [
+        "http://localhost:3000",
+        "http://localhost:80",
+        "http://localhost",
+      ];
+
+      const requestOrigin = request.headers.get('origin');
+      if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
+        return true;
+      }
+
+      return false;
+    },
+    credentials: true,
+  }))
 
   .derive(({ bearer, jwt, set }) => ({
     verifyUser: async () => {

@@ -22,13 +22,32 @@ const app = new Elysia()
         })
     )
 
+    // All of the following routes are public by /auth/*
     // signin user by creating account
-    .post('/signin', async ({ request, status, jwt, cookie: { auth } }) => {
+    .post('/signin', async ({ request, status }) => {
         const data: TypeUser = await request.body?.json();
 
         const res = await signInUser(data)
 
-        if (!res.data) return status(res.status, { message: res.message, field: res.field });
+        return status(res.status, { message: res.message, data: res.data, field: res.field });
+    })
+
+    // login user with credentails
+    .post('/login', async ({ request, status }) => {
+        const data: TypeLogIn = await request.body?.json()
+
+        const res = await logInUser(data);
+
+        return status(res.status, { message: res.message, data: res.data, field: res.field });
+    })
+
+    // Verify email account
+    .post('/verify-account', async ({ status, jwt, request, cookie: { auth } }) => {
+        const { userId, otp } = await request.body?.json()
+        if (!userId || !otp) return status(415, "Invalid or Missing Inputs!");
+
+        const res = await verifyOTP(userId, otp);
+        if (!res?.data) return status(res.status, res.message);
 
         const token = await jwt.sign(res?.data)
 
@@ -39,32 +58,17 @@ const app = new Elysia()
             path: '/'
         })
 
-        return status(res.status, { message: res.message, data: res.data });
+        return status(res.status, res.message)
     })
 
-    // login user with credentails
-    .post('/login', async ({ request, status, jwt, cookie: { auth } }) => {
-        const { email, password }: TypeLogIn = await request.body?.json()
-        if (!email || !password) return status(415, "Invalid inputs!");
+    // resend OTP
+    .post('/resend-otp', async ({ status, request }) => {
+        const { userId, email } = await request.body?.json()
+        if (!userId || !email) return status(415, "Invalid or Missing Inputs!");
 
-        try {
-            const res = await logInUser(email, password);
+        const res = await resendOTPVerificationEmail(userId, email);
 
-            if (!res) return status(401, "Invalid Credentials!")
-
-            const token = await jwt.sign(res)
-
-            auth?.set({
-                value: token,
-                httpOnly: true,
-                maxAge: 7 * 86400,
-                path: '/'
-            })
-
-            return status(200, { message: 'User LoggedIn', token });
-        } catch (e) {
-            return status(500, "Internal server error!");
-        }
+        return status(res.status, { message: res.message, data: res.data })
     })
 
     .get('/user-exists/:userId', async ({ status, params: { userId } }) => {
@@ -103,26 +107,6 @@ const app = new Elysia()
         })
 
         return status(200, "OK")
-    })
-
-    // Verify email account
-    .post('/verify-account', async ({ status, request }) => {
-        const { userId, otp } = await request.body?.json()
-        if (!userId || !otp) return status(415, "Invalid or Missing Inputs!");
-
-        const res = await verifyOTP(userId, otp);
-
-        return status(res.status, res.message)
-    })
-
-    // resend OTP
-    .post('/resend-otp', async ({ status, request }) => {
-        const { userId, email } = await request.body?.json()
-        if (!userId || !email) return status(415, "Invalid or Missing Inputs!");
-
-        const res = await resendOTPVerificationEmail(userId, email);
-
-        return status(res.status, { message: res.message, data: res.data })
     })
     .listen(3000)
 

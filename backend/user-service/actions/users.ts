@@ -1,9 +1,9 @@
 import 'dotenv';
+import type { TypeLogIn, TypeUser } from '../lib/types';
 import { add, isFuture } from 'date-fns';
 import { prisma } from "../lib/prisma";
 import nodemailer from 'nodemailer';
 import bcrypt from 'bcrypt';
-import type { TypeUser } from '../lib/types';
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -84,7 +84,7 @@ export async function signInUser(data: TypeUser) {
         if (usernameExists) return { status: 400, message: `Username '${username}' is not available`, field: "username" }
 
         const emailExists = await getUserByEmail(email)
-        if (emailExists) return { status: 400, message: "Account already exists! Try to Login", field: "email" }
+        if (emailExists) return { status: 400, message: "Account already exists! Try to Log-in", field: "email" }
 
         const password_hash = await bcrypt.hash(password, 10);
 
@@ -101,36 +101,68 @@ export async function signInUser(data: TypeUser) {
 
         await sendOTPVerificationEmail(user?.id, email)
 
-        return { status: 200, message: "Account created successfully!", data: { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, username: user.username, email: user.email, refreshed: false } }
+        return {
+            status: 200,
+            message: "Account created successfully!",
+            data: {
+                userId: user.id,
+                email: user.email,
+            }
+        }
     } catch (error) {
         console.error(error)
         return { status: 500, message: "Internal Server Error!" };
     }
 }
 
-export async function logInUser(email: string, password: string) {
-    const user = await prisma.user.findUnique({
-        where: {
-            email
-        },
-        select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            password_hash: true,
-        },
-    });
-    if (!user) return null
+export async function logInUser(data: TypeLogIn) {
+    const { email, password } = data;
 
-    const verified = bcrypt.compare(password, user?.password_hash)
-    if (!verified) return null
+    try {
+        if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+            return { status: 400, message: "Email should be of type email@example.com", field: "email" }
+        }
+        else if (password.length < 8) {
+            return { status: 400, message: "Password should be of more than 8 characters", field: "password" }
+        }
 
-    return { userId: user.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, refreshed: false }
+        const user = await prisma.user.findUnique({
+            where: {
+                email
+            },
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                username: true,
+                email: true,
+                password_hash: true,
+            },
+        });
+        if (!user) return { status: 400, message: "Account don't exists! Try to Sign-up", field: "email" }
+
+        const verified = bcrypt.compare(password, user?.password_hash)
+        if (!verified) return { status: 401, message: "Invalid email or password", field: "password" }
+
+        await sendOTPVerificationEmail(user?.id, email)
+
+        return {
+            status: 200,
+            message: "A verification code has been sent to your email!",
+            data: {
+                userId: user.id,
+                email: user.email,
+            }
+        }
+    } catch (error) {
+        console.error(error);
+        return { status: 500, message: "Internal Server Error!" };
+    }
 }
 
 export async function sendOTPVerificationEmail(userId: string, email: string) {
     try {
-        const otp = `${Math.floor(1000 + Math.random() * 9000)}`;
+        const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
         const mailOptions = {
             from: process.env.AUTH_EMAIL,
             to: email,
@@ -212,13 +244,23 @@ export async function verifyOTP(userId: string, otp: string) {
         const verified = await bcrypt.compare(otp, UserOTPRecord.otp)
         if (!verified) return { status: 400, message: "Incorrect OTP, Account not verified!" }
 
-        await prisma.user.update({
+        const user = await prisma.user.update({
             where: { id: userId },
             data: { verified: true },
         });
         await prisma.userOTPVerification.deleteMany({ where: { userId } })
 
-        return { status: 200, message: "User account has been verified!" }
+        return {
+            status: 200,
+            message: "User account has been verified!",
+            data: {
+                userId: user.id,
+                name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}`,
+                username: user.username,
+                email: user.email,
+                refreshed: false
+            }
+        }
     } catch (error) {
         console.error(error)
         return { status: 500, message: "Internal Server Error!" }

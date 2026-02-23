@@ -10,8 +10,9 @@ import { FieldGroup } from "@/components/ui/field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { setSessionData } from "@/lib/utils";
 import { useForm } from "react-hook-form";
-import { signUp } from "@/actions/auth";
+import { signup } from "@/actions/auth";
 import { toast } from "sonner";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,7 +35,7 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
     });
 
     const { mutate, isPending } = useMutation({
-        mutationFn: (data: typeSignUpSchema) => signUp(data),
+        mutationFn: (data: typeSignUpSchema) => signup(data),
 
         onSuccess: (result) => {
             if (!result.success) {
@@ -50,11 +51,11 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
                 return;
             };
 
+            setSessionData(result.data?.userId ?? '', result.data?.email ?? '')
             toast.success(result.message ?? "Account created successfully!", { id: "signup" });
 
             const params = new URLSearchParams({
-                userId: result.data?.userId ?? "",
-                email: result.data?.email ?? "",
+                from: "signup",
                 redirectTo: redirectUrl,
             });
 
@@ -62,14 +63,10 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
         },
 
         onError: (error: Error) => {
+            console.error("Sign-up error:", error);
             toast.error(error.message ?? "Something went wrong. Please try again.", { id: "signup" });
         },
     });
-
-    const onSubmit = (data: typeSignUpSchema) => {
-        toast.loading("Creating your account...", { id: "signup" });
-        mutate(data);
-    };
 
     return (
         <Card className="w-full max-w-lg shadow-lg">
@@ -88,7 +85,7 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
             <CardContent>
                 <Form {...form}>
                     <form
-                        onSubmit={form.handleSubmit(onSubmit)}
+                        onSubmit={form.handleSubmit((values) => mutate(values))}
                         className="space-y-5"
                         noValidate
                     >
