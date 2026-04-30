@@ -1,5 +1,5 @@
 import 'dotenv';
-import type { TypeLogIn, TypeUser } from '../lib/types';
+import type { TypeLogInData, TypeUserData } from '../lib/types';
 import { add, isFuture } from 'date-fns';
 import { prisma } from "../lib/prisma";
 import nodemailer from 'nodemailer';
@@ -60,7 +60,7 @@ export async function getUserByUsername(username: string) {
     })
 }
 
-export async function signInUser(data: TypeUser) {
+export async function signInUser(data: TypeUserData) {
     const { firstName, lastName, username, email, password, privacyPolicy, newsletter } = data
 
     try {
@@ -115,7 +115,7 @@ export async function signInUser(data: TypeUser) {
     }
 }
 
-export async function logInUser(data: TypeLogIn) {
+export async function logInUser(data: TypeLogInData) {
     const { email, password } = data;
 
     try {

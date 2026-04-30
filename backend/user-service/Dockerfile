@@ -4,7 +4,11 @@ WORKDIR /app
 
 COPY package.json bun.lock ./
 
+COPY prisma ./prisma/
+
 RUN bun install
+
+RUN bun x prisma generate
 
 COPY . .
 

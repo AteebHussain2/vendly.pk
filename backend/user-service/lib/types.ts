@@ -1,4 +1,4 @@
-export type TypeUser = {
+export type TypeUserData = {
     firstName: string,
     lastName: string,
     email: string,
@@ -14,7 +14,7 @@ export type TypeUser = {
     newsletter: boolean,
 }
 
-export type TypeLogIn = {
+export type TypeLogInData = {
     email: string,
     password: string
 }
