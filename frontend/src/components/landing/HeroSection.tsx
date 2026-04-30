@@ -40,7 +40,7 @@ export default function HeroSection() {
             className="text-base font-semibold h-12 px-8 rounded-lg"
             asChild
           >
-            <Link href="/auth/signup">
+            <Link href="/signup">
               Start Free
               <ArrowRight className="size-5" />
             </Link>

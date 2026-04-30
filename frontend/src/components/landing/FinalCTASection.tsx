@@ -22,7 +22,7 @@ export default function FinalCTASection() {
 
           {/* Primary CTA */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
-            <Link href="/auth/signup">
+            <Link href="/signup">
               <Button
                 size="lg"
                 className="text-base font-semibold h-12 px-8 rounded-lg sm:text-lg"
