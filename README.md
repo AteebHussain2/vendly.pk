@@ -51,7 +51,7 @@ Vendly is a multi-tenant platform; focusing on [privacy](https://vendly-pk.verce
 
 # Get Started
 
-Get started with this project. Contributions following [contribution rules](./CONTRIBUTION.md) are allowed under [MIT License](./LICENSE.md).
+Get started with this project. Contributions following [contribution rules](./CONTRIBUTION.md) are allowed under [MIT License](./LICENSE).
 
 Before starting, star the repository.
 
@@ -112,4 +112,4 @@ cd backend && docker compose up --build -d
 
 # License
 
-This project is created under MIT license and allows fair usage.
+This project is created under [MIT license](./LICENSE) and allows fair usage.
