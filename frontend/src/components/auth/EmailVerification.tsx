@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { getSessionData } from "@/lib/utils";
 import { Separator } from "../ui/separator";
 import { useRouter } from "next/navigation";
+import { NextResponse } from "next/server";
 import { toast } from "sonner";
 
 const OTP_LENGTH = 6;
@@ -18,11 +19,15 @@ const RESEND_COOLDOWN = 60; // seconds
 interface EmailVerificationProps {
     from: string;
     redirectTo: string;
+    userId: string;
+    email: string;
 }
 
 export default function EmailVerification({
     from,
     redirectTo,
+    userId,
+    email,
 }: EmailVerificationProps) {
     const router = useRouter();
 
@@ -30,11 +35,9 @@ export default function EmailVerification({
     const [cooldown, setCooldown] = useState(0);
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const data = getSessionData();
-    if (!data || !data?.userId || !data?.email) {
+    if (!userId) {
         router.push("/login");
     };
-    const { userId, email } = data!;
 
     // Cooldown Timer to Resend OTP
     function startCooldown() {
@@ -72,7 +75,7 @@ export default function EmailVerification({
 
     // Resend OTP mutation
     const { mutate: resend, isPending: isResending } = useMutation({
-        mutationFn: () => resendOtp({ userId, email }),
+        mutationFn: () => resendOtp({ userId }),
         onSuccess: (result) => {
             if (!result.success) {
                 toast.error(result.message);

@@ -32,7 +32,7 @@ export async function signup(
 
     try {
         await deleteJWT();
-        const url = getUrl("/auth/signin");
+        const url = getUrl("/auth/signup");
         const res = await api.post<SignUpResponse>(url, {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -51,6 +51,7 @@ export async function signup(
         };
 
     } catch (error) {
+        console.log(error)
         if (axios.isAxiosError(error)) {
             return {
                 success: false,
@@ -164,16 +165,10 @@ export async function verifyEmail({
 // -------------------------------- RESEND OTP -----------------------------------
 
 
-export async function resendOtp({
-    userId,
-    email,
-}: {
-    userId: string;
-    email: string;
-}): Promise<OtpActionResult> {
+export async function resendOtp({ userId }: { userId: string }): Promise<OtpActionResult> {
     try {
         const url = getUrl("/auth/resend-otp");
-        const res = await api.post(url, { userId, email });
+        const res = await api.post(url, { userId });
 
         return {
             success: true,

@@ -1,20 +1,10 @@
 "use server"
 
+import 'dotenv';
 import { jwtVerify, importSPKI } from "jose";
 import { cookies } from "next/headers";
-import path from "path";
-import fs from "fs";
 
 interface AuthPayload {
-    userId: string;
-    name: string;
-    email: string;
-    username: string;
-    iat?: number;
-    exp?: number;
-}
-
-interface AuthResult {
     userId: string;
     name: string;
     email: string;
@@ -23,51 +13,33 @@ interface AuthResult {
 
 // -------------------------------- LOAD PUBLIC KEY -----------------------------------
 
-const publicKeyPem = fs.readFileSync(
-    path.join(process.cwd(), "public.pem"),
-    "utf-8"
-);
+const PUBLIC_KEY_PEM = process.env.JWT_PUBLIC_KEY!;
 
-export async function auth(): Promise<AuthResult | null> {
+let cachedPublicKey: any = null;
+
+async function getPublicKey() {
+    if (cachedPublicKey) return cachedPublicKey;
+
+    const pem = PUBLIC_KEY_PEM.replace(/\\n/g, "\n");
+    cachedPublicKey = await importSPKI(pem, "RS256");
+    return cachedPublicKey;
+}
+
+export async function verifyJWT(token: string): Promise<AuthPayload | null> {
     try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("auth")?.value;
-
-        if (!token) return null;
-
-        const publicKey = await importSPKI(publicKeyPem, "RS256");
-
-        const { payload } = await jwtVerify<AuthPayload>(token, publicKey, {
-            algorithms: ["RS256"],
-        });
-
-        return {
-            userId: payload.userId,
-            name: payload.name,
-            email: payload.email,
-            username: payload.username,
-        };
-
+        const publicKey = await getPublicKey();
+        const { payload } = await jwtVerify(token, publicKey, { algorithms: ["RS256"] });
+        return payload as unknown as AuthPayload;
     } catch (error) {
         return null;
     }
 }
 
-export async function verifyJWT(): Promise<boolean> {
-    try {
-        const cookieStore = await cookies();
-        const token = cookieStore.get("auth")?.value;
-
-        if (!token) return false;
-
-        const publicKey = await importSPKI(publicKeyPem, "RS256");
-
-        await jwtVerify(token, publicKey, { algorithms: ["RS256"] });
-
-        return true;
-    } catch {
-        return false;
-    }
+export async function auth(): Promise<AuthPayload | null> {
+    const cookieStore = await cookies();
+    const token = cookieStore.get("auth")?.value;
+    if (!token) return null;
+    return await verifyJWT(token);
 }
 
 export async function getJWT() {

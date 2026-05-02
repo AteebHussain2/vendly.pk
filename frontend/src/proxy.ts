@@ -1,42 +1,32 @@
-import { importSPKI, jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
+import { verifyJWT } from "./lib/auth";
 
 // -------------------------------- HELPER FUNCTION -----------------------------------
 
 const protectedRoutes = ["/dashboard", "/profile", "/settings", "/orders"];
 const authRoutes = ["/login", "/signup", "/verification"];
 
-const PUBLIC_KEY_PEM = process.env.JWT_PUBLIC_KEY!;
-
-async function verifyJWT(token: string): Promise<boolean> {
-    try {
-        const pem = PUBLIC_KEY_PEM.replace(/\\n/g, "\n");
-        const publicKey = await importSPKI(pem, "RS256");
-        console.log("isValidToken:", publicKey);
-        await jwtVerify(token, publicKey, { algorithms: ["RS256"] });
-        return true;
-    } catch (error) {
-        console.error(error)
-        return false;
-    }
-}
-
 // -------------------------------- PROXY (MIDDLEWARE) -----------------------------------
+
+// This is the proxy (middleware) function. 
+// It will check the route and get payload from siged JWT
+// from cookies checks the validity and the route.
+// if JWT is valid with auth route ---> Go to dashboard brother
+// if JWT is invalud with protected route --> Got to auth with redirect url
+// if nothing above then proceed.
+// it sets `x-user-id` in headers so other pages can get it whenever they want to.
 
 export async function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
+    const redirectTo = request.nextUrl.searchParams.get("redirectTo");
 
-    const isProtectedRoute = protectedRoutes.some((route) =>
-        pathname.startsWith(route)
-    );
-
-    const isAuthRoute = authRoutes.some((route) =>
-        pathname.startsWith(route)
-    );
+    const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
+    const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
     const token = request.cookies.get("auth")?.value;
-    const isValidToken = token ? await verifyJWT(token) : false
-    console.log("isValidToken:", isValidToken);
+
+    const payload = token ? await verifyJWT(token) : null;
+    const isValidToken = !!payload
 
     if (isProtectedRoute && !isValidToken) {
         const loginUrl = new URL("/login", request.url);
@@ -46,10 +36,15 @@ export async function proxy(request: NextRequest) {
     }
 
     if (isAuthRoute && isValidToken) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+        return NextResponse.redirect(new URL(redirectTo ?? "/dashboard", request.url));
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    if (payload) {
+        response.headers.set("x-user-id", payload.userId);
+    }
+
+    return response;
 }
 
 // -------------------------------- ROUTE MATCHER -----------------------------------

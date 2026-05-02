@@ -51,12 +51,13 @@ export default function SignUp({ redirectUrl }: { redirectUrl: string }) {
                 return;
             };
 
-            setSessionData(result.data?.userId ?? '', result.data?.email ?? '')
             toast.success(result.message ?? "Account created successfully!", { id: "signup" });
 
             const params = new URLSearchParams({
                 from: "signup",
                 redirectTo: redirectUrl,
+                userId: result.data?.userId ?? "",
+                email: result.data?.email ?? ""
             });
 
             router.push(`/verification?${params.toString()}`);

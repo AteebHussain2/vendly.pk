@@ -42,12 +42,13 @@ const LogIn = ({ redirectUrl }: { redirectUrl: string }) => {
                 return;
             };
 
-            setSessionData(result.data?.userId ?? '', result.data?.email ?? '')
             toast.success(result.message ?? "Login successful!", { id: "login" });
 
             const params = new URLSearchParams({
                 from: "login",
                 redirectTo: redirectUrl,
+                userId: result.data?.userId ?? "",
+                email: result.data?.email ?? ""
             });
 
             router.push(`/verification?${params.toString()}`);
