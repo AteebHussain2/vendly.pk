@@ -20,6 +20,9 @@ model User {
   profileImage String?
   bio          String?
 
+  tierId String?
+  tier   SubscriptionTier? @relation(fields: [tierId], references: [id])
+
   verified   Boolean @default(false)
   newsletter Boolean @default(false)
 
@@ -39,6 +42,24 @@ model UserOTPVerification {
   otp       String
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model SubscriptionTier {
+  id    String @id @default(uuid())
+  slug  String @unique
+  price Int
+
+  base_store_limit       Int @default(1)
+  base_team_member_limit Int @default(0)
+  base_product_limit     Int @default(50)
+  base_ai_daily_limit    Int @default(100)
+
+  features Json? @default("{}")
+
+  users User[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum STATUS {

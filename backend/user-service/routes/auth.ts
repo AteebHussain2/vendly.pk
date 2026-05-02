@@ -1,5 +1,6 @@
 import Elysia, { t } from "elysia";
-import { getUserByEmail, getUserById, getUserByUsername, logInUser, resendOTPVerificationEmail, signInUser, verifyOTP } from "../actions/users";
+import { logInUser, resendOTPVerificationEmail, signUpUser, verifyOTP } from "../actions/auth";
+import { getUserByEmail, getUserById, getUserByUsername } from "../actions/users";
 import type { TypeLogInData, TypeUserData } from "../lib/types";
 import { authConfig } from "../lib/auth-config";
 
@@ -7,22 +8,12 @@ export const authRoutes = new Elysia()
     .use(authConfig)
     // All of the following routes are public by /auth/*
     // signin user by creating account
-    .post('/signin', async ({ request, status }) => {
+    .post('/signup', async ({ request, status }) => {
         const data: TypeUserData = await request.body?.json();
 
-        const res = await signInUser(data)
+        const res = await signUpUser(data)
 
         return status(res.status, { message: res.message, data: res.data, field: res.field });
-    }, {
-        body: t.Object({
-            firstName: t.String(),
-            lastName: t.Optional(t.String()),
-            username: t.String(),
-            email: t.String(),
-            password: t.String(),
-            privacyPolicy: t.Boolean(),
-            newsletter: t.Boolean(),
-        })
     })
 
     // login user with credentails
@@ -32,11 +23,6 @@ export const authRoutes = new Elysia()
         const res = await logInUser(data);
 
         return status(res.status, { message: res.message, data: res.data, field: res.field });
-    }, {
-        body: t.Object({
-            email: t.String(),
-            password: t.String(),
-        })
     })
 
     // Verify email account
@@ -61,10 +47,10 @@ export const authRoutes = new Elysia()
 
     // resend OTP
     .post('/resend-otp', async ({ status, request }) => {
-        const { userId, email } = await request.body?.json()
-        if (!userId || !email) return status(415, "Invalid or Missing Inputs!");
+        const { userId } = await request.body?.json()
+        if (!userId) return status(415, "UserId is required!");
 
-        const res = await resendOTPVerificationEmail(userId, email);
+        const res = await resendOTPVerificationEmail(userId);
 
         return status(res.status, { message: res.message, data: res.data })
     })
