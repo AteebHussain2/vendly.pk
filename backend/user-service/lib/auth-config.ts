@@ -14,7 +14,10 @@ export const authConfig = new Elysia({ name: 'auth-config' })
             exp: '7d',
             schema: t.Object({
                 userId: t.String(),
-                name: t.String(),
+                firstName: t.String(),
+                lastName: t.Optional(t.String()),
+                email: t.String(),
+                username: t.String(),
                 refreshed: t.Boolean(),
             })
         })

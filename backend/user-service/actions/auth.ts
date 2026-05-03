@@ -179,7 +179,8 @@ export async function verifyOTP(userId: string, otp: string) {
             message: "User account has been verified!",
             data: {
                 userId: user.id,
-                name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}`,
+                firstName: user?.firstName,
+                lastName: user?.lastName ?? undefined,
                 username: user.username,
                 email: user.email,
                 refreshed: false
