@@ -3,7 +3,7 @@ import { verifyJWT } from "./lib/auth";
 
 // -------------------------------- HELPER FUNCTION -----------------------------------
 
-const protectedRoutes = ["/dashboard", "/profile", "/settings", "/orders"];
+const protectedRoutes = ["/dashboard", "/profile", "/settings", "/orders", "/ai"];
 const authRoutes = ["/login", "/signup", "/verification"];
 
 // -------------------------------- PROXY (MIDDLEWARE) -----------------------------------

@@ -61,7 +61,7 @@ const LogIn = ({ redirectUrl }: { redirectUrl: string }) => {
     });
 
     return (
-        <Card className="w-full max-w-md shadow-lg">
+        <Card className="w-full max-w-sm shadow-lg">
             {/* ── Header ── */}
             <CardHeader className="flex flex-col items-center gap-1 pb-4">
                 <CardTitle className="flex flex-row items-center gap-3">

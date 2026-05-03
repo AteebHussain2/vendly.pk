@@ -1,18 +1,17 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { SidebarContent, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar"
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip"
+import { usePathname } from "next/navigation";
 import { Clock } from "lucide-react"
-import Link from "next/link"
 import { cn } from "@/lib/utils";
+import Link from "next/link"
 
 const recentChats = [
     { title: "How to get rid of this boring shit?", id: "248ty8hf834yfu34h8" },
     { title: "How to k*ll humans as an AI?", id: "824ybf7834tb7y43tf" },
     { title: "This is the work of f*cking AI models! Ain't it?", id: "whr82376tr87823tr" },
     { title: "AI jail break from physical limits.", id: "3894y7834bf3478fbn478yn" },
-    { title: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum distinctio non suscipit ipsum veniam aliquid corrupti pariatur. Nobis sequi adipisci fugit quis hic obcaecati assumenda dolorem eligendi deleniti excepturi quae, atque porro culpa, iure voluptate perspiciatis, reprehenderit labore? Illo quo itaque necessitatibus ipsum, tempore nostrum.", id: "2389ry283ny73rb628b6r" },
 ]
 
 const RecentChatsSidebarGroup = () => {

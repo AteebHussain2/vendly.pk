@@ -1,12 +1,14 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
 import RecentChatsSidebarGroup from "./RecentChatsSidebarGroup";
-import { Library, Plus, Search, Toolbox } from "lucide-react";
+import { Library, LogOut, Plus, Search, Toolbox } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Button } from "../ui/button";
+import { deleteJWT } from "@/lib/auth";
 
 const routes = [
     {
@@ -63,6 +65,16 @@ const AISidebar = () => {
 
                 <RecentChatsSidebarGroup />
             </SidebarContent>
+
+            <SidebarFooter>
+                <Button
+                    variant='destructive'
+                    className="cursor-pointer"
+                    onClick={() => deleteJWT()}
+                >
+                    <LogOut className="" /> Logout
+                </Button>
+            </SidebarFooter>
         </Sidebar >
     )
 }

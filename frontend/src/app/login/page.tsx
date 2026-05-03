@@ -11,7 +11,7 @@ export default async function LoginPage({ searchParams }: LogInPageProps) {
   const redirectUrl = getRedirectUrl(params);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-muted/40 px-4">
+    <main className="min-h-screen w-screen flex items-center justify-center bg-muted/40 px-4">
       <LogIn redirectUrl={redirectUrl} />
     </main>
   );

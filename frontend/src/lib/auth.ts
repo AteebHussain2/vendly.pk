@@ -6,7 +6,8 @@ import { cookies } from "next/headers";
 
 interface AuthPayload {
     userId: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     username: string;
 }
