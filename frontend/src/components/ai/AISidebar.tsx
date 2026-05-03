@@ -1,14 +1,15 @@
 "use client";
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
-import RecentChatsSidebarGroup from "./RecentChatsSidebarGroup";
-import { Library, LogOut, Plus, Search, Toolbox } from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
+import { Library, Lock, LogOut, Plus, Search, Toolbox, User2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { usePathname } from "next/navigation";
+import { deleteJWT } from "@/lib/auth";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { Button } from "../ui/button";
-import { deleteJWT } from "@/lib/auth";
 
 const routes = [
     {
@@ -31,6 +32,11 @@ const routes = [
         href: "/ai/memory",
         icon: Library
     },
+]
+
+const subAgents = [
+    { name: "Wein", lastMessage: "Ehh? I want to die..." },
+    { name: "Souma", lastMessage: "We have to do something about food shortage before building an empire." }
 ]
 
 const AISidebar = () => {
@@ -63,7 +69,86 @@ const AISidebar = () => {
                     ))}
                 </SidebarMenu>
 
-                <RecentChatsSidebarGroup />
+                {/* <RecentChatsSidebarGroup /> */}
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>
+                        Main Agent
+                    </SidebarGroupLabel>
+                    <SidebarContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    asChild
+                                    className="h-12"
+                                >
+                                    <Link href="/ai/chat/lawrence" className="flex items-center space-x-1">
+                                        <User2 size={32} className="size-8! p-1 border border-border bg-black/5 rounded-full" />
+                                        <div className="flex flex-col items-start">
+                                            <h2 className="font-[501] text-foreground">Lawrence</h2>
+                                            <p className="truncate line-clamp-1 text-xs text-muted-foreground">
+                                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi cumque architecto sint?
+                                            </p>
+                                        </div>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarContent>
+                </SidebarGroup>
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>
+                        Sub Agents
+                    </SidebarGroupLabel>
+                    <SidebarContent>
+                        <SidebarMenu>
+                            {subAgents.map(subAgent => (
+                                <SidebarMenuItem key={subAgent.name}>
+                                    <Tooltip delayDuration={500}>
+                                        <TooltipTrigger asChild>
+                                            <SidebarMenuButton
+                                                asChild
+                                                disabled
+                                                className="h-12"
+                                            >
+                                                <Link
+                                                    href={`/upgarde?redirectTo=/ai/chat/${subAgent.name.toLowerCase()}`}
+                                                    className="flex items-center space-x-1 text-muted-foreground hover:text-muted-foreground!"
+                                                >
+                                                    <div className="p-2 border border-border bg-black/5 rounded-full">
+                                                        <Lock
+                                                            size={28}
+                                                            className="size-4!"
+                                                        />
+                                                    </div>
+                                                    <div className="flex flex-col items-start">
+                                                        <h2 className="font-[501]">
+                                                            {subAgent.name}
+                                                        </h2>
+                                                        <p className="truncate line-clamp-1 text-xs text-muted-foreground/80">
+                                                            {subAgent.lastMessage}
+                                                        </p>
+                                                    </div>
+                                                </Link>
+                                            </SidebarMenuButton>
+                                        </TooltipTrigger>
+
+                                        <TooltipContent side="right">
+                                            Upgrade to unlock more agents.
+                                        </TooltipContent>
+                                    </Tooltip>
+
+                                    <SidebarMenuBadge>
+                                        <Badge variant='outline' className="text-xs! text-primary font-medium">
+                                            Upgrade
+                                        </Badge>
+                                    </SidebarMenuBadge>
+                                </SidebarMenuItem>
+                            ))}
+                        </SidebarMenu>
+                    </SidebarContent>
+                </SidebarGroup>
             </SidebarContent>
 
             <SidebarFooter>
