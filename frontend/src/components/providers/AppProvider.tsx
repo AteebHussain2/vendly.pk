@@ -6,6 +6,7 @@ import { ThemeProvider } from "./theme-provider";
 import { TooltipProvider } from "../ui/tooltip";
 import NextTopProvider from 'nextjs-toploader';
 import { useState } from 'react';
+import { SidebarProvider } from "../ui/sidebar";
 
 const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const [queryClient] = useState(() => new QueryClient({
@@ -30,12 +31,14 @@ const AppProvider = ({ children }: { children: React.ReactNode }) => {
                     enableSystem
                 >
                     <NextTopProvider color='#8e51ff' showSpinner={false} />
-                    <TooltipProvider>
-                        {children}
-                    </TooltipProvider>
+                    <SidebarProvider>
+                        <TooltipProvider>
+                            {children}
+                        </TooltipProvider>
+                    </SidebarProvider>
                 </ThemeProvider>
             </ImageKitProvider>
-        </QueryClientProvider>
+        </QueryClientProvider >
     );
 };
 

@@ -1,11 +1,11 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { ThemeToggle } from "../providers/ThemeToggle";
 // import UserButton from "../UserButton";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ThemeToggle } from "../providers/ThemeToggle";
 
 const navLinks = [
   { href: "#how-it-works", label: "How It Works" },

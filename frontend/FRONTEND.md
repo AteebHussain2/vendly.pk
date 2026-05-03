@@ -29,6 +29,7 @@ frontend/
 │   │   ├── login/page.tsx                     # login page
 │   │   ├── signup/page.tsx                    # signup page
 │   │   ├── verification/page.tsx              # email/account verification page
+│   │   ├── ai/page.tsx              # ai agent chat page
 │   │   └── favicon.ico
 │   │
 │   ├── actions/                               # server actions (API proxies)
