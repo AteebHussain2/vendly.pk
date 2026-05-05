@@ -75,10 +75,21 @@ model Agent {
   goal        String
   personality String
 
+  type       AgentType
   visibility AgentVisibility @default(PRIVATE)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+enum AgentType {
+  MAIN
+  SUB
+}
+
+enum AgentVisibility {
+  PRIVATE
+  PUBLIC
 }
 
 model Tool {
@@ -91,11 +102,6 @@ model Tool {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-enum AgentVisibility {
-  PRIVATE
-  PUBLIC
 }
 
 model Skill {
