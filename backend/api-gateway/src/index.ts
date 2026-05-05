@@ -1,27 +1,11 @@
+import { authConfig } from './auth-config';
 import { bearer } from '@elysiajs/bearer';
 import { SERVICE_MAP } from './services';
-import { importPublicKey } from './keys';
-import { jwt } from '@elysiajs/jwt';
-import { Elysia, t } from 'elysia';
 import cors from '@elysiajs/cors';
-
-const rawPublic = await Bun.file('./public.pem').text();
-const publicKey = await importPublicKey(rawPublic);
+import { Elysia } from 'elysia';
 
 const app = new Elysia()
-  .use(
-    jwt({
-      name: 'jwt',
-      secret: publicKey,
-      alg: 'RS256',
-      exp: '7d',
-      schema: t.Object({
-        userId: t.String(),
-        name: t.String(),
-        refreshed: t.Boolean(),
-      })
-    })
-  )
+  .use(authConfig)
   .use(bearer())
   .use(cors({
     origin(request) {
@@ -47,7 +31,6 @@ const app = new Elysia()
 
       const payload = await jwt.verify(bearer)
       if (!payload) return null;
-
 
       const res = await fetch(`http://user-service:3000/user-exists/${payload?.userId}`, {
         method: 'GET',
@@ -80,6 +63,11 @@ const app = new Elysia()
       });
     }
   }))
+
+  // Health Check Routes
+  .all('/health/:service', async ({ params, request, proxyTo }) => {
+    return proxyTo(params.service, '/health', request);
+  })
 
   .group('/api/v1', (app) => app
     // Public Routes
