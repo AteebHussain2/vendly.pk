@@ -15,7 +15,14 @@ export const userRoutes = new Elysia()
         const user = await getUserById(userId)
         if (!user) return status(401, "Unauthorized!")
 
-        const res = { userId: user?.id, name: `${user?.firstName}${user?.lastName ?? ' ' + user?.lastName}}`, refreshed: true }
+        const res = {
+            userId: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName ?? undefined,
+            email: user.email,
+            username: user.username,
+            refreshed: true
+        };
         const token = await jwt.sign(res)
 
         auth?.set({
