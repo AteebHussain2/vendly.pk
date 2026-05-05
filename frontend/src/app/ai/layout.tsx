@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
     return (
         <div className="min-h-screen min-w-screen flex items-start justify-start overflow-y-auto overflow-x-hidden">
-            <AISidebar />
+            <AISidebar isFreeTier />
             <main className="w-full flex-1">
                 {children}
             </main>
