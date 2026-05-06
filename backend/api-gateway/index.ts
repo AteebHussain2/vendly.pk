@@ -1,31 +1,30 @@
-import { authConfig } from './auth-config';
+import { authConfig } from './lib/auth-config';
+import { corsConfig } from './lib/cors-config';
+import { SERVICE_MAP } from './lib/services';
 import { bearer } from '@elysiajs/bearer';
-import { SERVICE_MAP } from './services';
-import cors from '@elysiajs/cors';
 import { Elysia } from 'elysia';
 
+
+/* index.ts --> api-gateway
+  This server acts as an api-gateway between private services and clients
+  the server itself is exposed to public network and all requests made from client reaches it.
+  From here, the requests are re-routed to their desired locations after passing through certain checks
+
+  ElysiaJS with Bun is used as api-gateway considering its incredible/unrivaled speed.
+*/
+
 const app = new Elysia()
-  .use(authConfig)
+  .use(authConfig) // JWT auth configuration
+  .use(corsConfig) // Cors configuration for accepting only allowed requests
   .use(bearer())
-  .use(cors({
-    origin(request) {
-      const allowedOrigins = [
-        "http://localhost:3000",
-        "http://localhost:80",
-        "http://localhost",
-      ];
 
-      const requestOrigin = request.headers.get('origin');
-      if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
-        return true;
-      }
-
-      return false;
-    },
-    credentials: true,
-  }))
-
+  // this initializes functions that can be used within the api-gateway for each request.
   .derive(({ bearer, jwt, set }) => ({
+
+    // this function takes the bearer token (handled by elysia bearer() middleware) and verify the provided JWT
+    // payload containing either `false` or user information is returned.
+    // the function then checks wether this user exists or not
+    // if users exists, userId is returned. Otherwise a NULL value is returned
     verifyUser: async () => {
       if (!bearer) return null;
 
@@ -43,8 +42,11 @@ const app = new Elysia()
       return user?.userId
     },
 
+    // this function re-routes the request to actual backend service.
+    // if the target host i.e. service exists in SERVICE_MAP,
+    // it returns a fetch request with 'x-user-id' in headers
+    // if the host is missing, a 404 Not Found is returned
     proxyTo: async (serviceName: string, subPath: string, req: Request, userId?: string) => {
-      console.log("REQUEST PROXY TO: ", serviceName, subPath, userId)
       const targetHost = SERVICE_MAP[serviceName as keyof typeof SERVICE_MAP];
       if (!targetHost) {
         set.status = 404;
@@ -64,18 +66,20 @@ const app = new Elysia()
     }
   }))
 
-  // Health Check Routes
+  // Health Check Routes for checking health of services, bypassing the user-id security
+  // every single request preceeding with a '/health' gets re-routed to '/health' of target host
   .all('/health/:service', async ({ params, request, proxyTo }) => {
     return proxyTo(params.service, '/health', request);
   })
 
   .group('/api/v1', (app) => app
-    // Public Routes
+    // Public Routes - '/auth' routes are made public for signup, login and requests for checking user existence
     .all('/auth/*', async ({ params, request, proxyTo }) => {
       return proxyTo('auth', params['*'], request);
     })
 
-    // Protected Routes
+    // Protected Routes - all the routes targeting a specifc service are protected by-default
+    // and required a valid JWT in headers to work. Otherwise '400, Unauthorised' is returned
     .all('/:service/*', async ({ params, request, set, status, verifyUser, proxyTo }) => {
       const userId = await verifyUser();
       if (!userId) {

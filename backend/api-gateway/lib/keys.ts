@@ -1,3 +1,17 @@
+/*
+This file involves reading, and encryption of auth keys.
+
+@importPrivateKey function, file private.pem gets imported
+    after removing header and footer, the rest content is
+    decoded to an ArrayBuffer via Base64, then it is
+    imported as cryptographic key for signing JWT
+    the key is finally ready to use and returned
+
+@importPublicKey function, file public.pem is imported
+    it follows the same private key method. But this
+    time, the key is converted to verify signed JWT
+*/
+
 export const importPrivateKey = async (pem: string) => {
     // Remove PEM headers and footers and newlines
     const pemHeader = "-----BEGIN PRIVATE KEY-----";
@@ -33,7 +47,7 @@ export const importPublicKey = async (pem: string) => {
     const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
 
     return await crypto.subtle.importKey(
-        "spki", 
+        "spki",
         binaryDer,
         {
             name: "RSASSA-PKCS1-v1_5",

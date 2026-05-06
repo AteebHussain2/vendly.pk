@@ -5,6 +5,11 @@ import { Elysia, t } from 'elysia';
 const rawPublic = await Bun.file('./public.pem').text();
 const publicKey = await importPublicKey(rawPublic);
 
+// auth-config.ts reads the public key for decoding, 
+// gets the cryptographic publicKey and uses @elysiajs/jwt
+// for defining JWT verification schema name as 'jwt'
+// the configuration is then returned as "authConfig"
+
 export const authConfig = new Elysia({ name: 'auth-config' })
     .use(
         jwt({
