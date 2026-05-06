@@ -14,7 +14,7 @@ Vendly is an immersive, first ever AI powered e-commerce platform. Vendly focuse
 
 We have AI automation everywhere, autonomous agents coding applications and doing homework to job-work. Costing `$$` more than ever. Most of the available e-commerce platforms are still old, cluttered and chaotic. Too many plugins and integration that will over-whelm any non-tech guy. They too cost `$$`.
 
-Vendly saves the efforts, solves 90% of the store setup in just 10% of the time. Vendly provides an interface for AI Chat, talk with it, spout random words and let the AI understand it.
+Vendly saves the efforts, solves 90% of the store setup in just 10% of the time. Vendly provides an interface for AI Chat, talk with it, spout random words and let the AI hallucinate on your non-sense.
 
 You can setup your store with-in minutes. Vendly provides numerous templates for your project, and custom builts for your needs. A dedicated CRM, Inventory Management System, Teams and Real-time Chat with detailed Analytics for NERDS.
 
@@ -24,7 +24,7 @@ Yet to decide. jk.. I'm not writing them
 
 ## Tech Stack
 
-Vendly is built modern-stack for cutting edge security and scalability. The primary stack consists of
+Vendly is built on modern-stack for cutting edge security and scalability. The primary stack consists of
 
 | Name         | Description                                                |
 | ------------ | ---------------------------------------------------------- |
@@ -38,6 +38,7 @@ Vendly is built modern-stack for cutting edge security and scalability. The prim
 | JWT          | Authentication and verification across multiple services   |
 | Prisma       | ORM for accessing PostgreSQL databases                     |
 | Docker       | Docker containerization for each backend service.          |
+| K8s          | For container orchestration and scalability.               |
 
 ## Infrastructure
 
@@ -89,7 +90,7 @@ Now, create a public and private keys to sign and verify JWT as described in the
 Execute the following commands in terminal.
 
 ```bash
-I DON'T KNOW THE COMMANDS FIGURE IT OUT
+echo I DON'T KNOW THE COMMANDS FIGURE IT OUT
 ```
 
 ### Install Dependencies
