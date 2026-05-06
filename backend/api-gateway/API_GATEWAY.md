@@ -22,3 +22,10 @@ bun run dev
 ```
 
 This will start api-gateway server at port `3000`
+
+## Configuration
+
+| Name        | Value | Description                                                                            |
+| ----------- | ----- | -------------------------------------------------------------------------------------- |
+| SERVER PORT | 3000  | When executed through `bun run dev` command, the server listens on default port `3000` |
+| DOCKER PORT | 3001  | When executed through Dockerfile, the container maps port `3000` to `3001`             |
