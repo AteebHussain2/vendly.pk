@@ -4,10 +4,8 @@ Vendly is an immersive, first ever AI powered e-commerce platform. Vendly focuse
 
 ## Pre-requisities
 
-### Docker
-
 - You need have docker desktop installed in your device with WSL ubuntu/linux integration. Visit [docker installation guide](https://docs.docker.com/desktop/setup/install/windows-install/) for setup.
-- No container running or existing that conflicts with the name of service containers. Check names [here](./backend/docker-compose.yml)
+- No container running or existing that conflicts with the name of service containers. Check names [here](./backend/docker-compose-template.yml)
 - NodeJS configured and running. Download it [here](https://nodejs.org/en/download/current)
 - PNPM installed and configured. If not, install from [here](https://pnpm.io/installation)
 - Bun.js kicking your bun. Here's how: [Kick-start bun](https://bun.com/docs/installation)
