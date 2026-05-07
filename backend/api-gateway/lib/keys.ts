@@ -1,16 +1,14 @@
-/*
-This file involves reading, and encryption of auth keys.
-
-@importPrivateKey function, file private.pem gets imported
-    after removing header and footer, the rest content is
-    decoded to an ArrayBuffer via Base64, then it is
-    imported as cryptographic key for signing JWT
-    the key is finally ready to use and returned
-
-@importPublicKey function, file public.pem is imported
-    it follows the same private key method. But this
-    time, the key is converted to verify signed JWT
-*/
+/**
+ * @importPrivateKey function for getting private key for JWT
+ * 
+ * @param pem secret `*.pem` key as string
+ * 
+ * @returns Cryptographic key for signing JWT
+ * 
+ * - Removes header and footer from the key string
+ * - Decodes its contents to an ArrayBuffer via Base64
+ * - Converts it as cryptographic key for signing JWT
+ */
 
 export const importPrivateKey = async (pem: string) => {
     // Remove PEM headers and footers and newlines
@@ -35,6 +33,14 @@ export const importPrivateKey = async (pem: string) => {
         ["sign"]
     );
 };
+
+/**
+ * @importPublicKey this function imports `public.pem` the same way. Key is converted to verify signed JWT
+ * 
+ * @param pem secret `*.pem` key as string
+ * 
+ * @returns Cryptographic key for verifying JWT
+ */
 
 export const importPublicKey = async (pem: string) => {
     const pemHeader = "-----BEGIN PUBLIC KEY-----";
