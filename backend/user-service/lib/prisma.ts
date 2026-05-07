@@ -2,6 +2,9 @@ import 'dotenv/config'
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from './generated/prisma/client';
 
+// Prisma ORM configuration along with 
+// cached prisma instance for hot-reloading
+
 const connectionString = process.env.DATABASE_URL;
 
 const adapter = new PrismaPg({ connectionString });

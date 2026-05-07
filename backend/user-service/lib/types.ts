@@ -1,3 +1,5 @@
+// All typescript types that can be used, or are being used.
+
 export type TypeUserData = {
     firstName: string,
     lastName: string,

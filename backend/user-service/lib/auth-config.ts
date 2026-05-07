@@ -5,6 +5,11 @@ import { importPrivateKey } from "./keys";
 const rawPrivate = await Bun.file('./private.pem').text();
 const privateKey = await importPrivateKey(rawPrivate);
 
+// auth-config.ts reads the private key for encoding, 
+// gets the cryptographic privateKey and uses @elysiajs/jwt
+// for defining JWT verification schema name as 'jwt'
+// the configuration is then returned as "authConfig"
+
 export const authConfig = new Elysia({ name: 'auth-config' })
     .use(
         jwt({

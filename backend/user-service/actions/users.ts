@@ -1,5 +1,6 @@
 import { prisma } from "../lib/prisma";
 
+// Returns user data by userId
 export async function getUserById(userId: string) {
     return await prisma.user.findUnique({
         where: {
@@ -8,6 +9,7 @@ export async function getUserById(userId: string) {
     })
 }
 
+// Returns user data by email
 export async function getUserByEmail(email: string) {
     return await prisma.user.findUnique({
         where: {
@@ -16,6 +18,7 @@ export async function getUserByEmail(email: string) {
     })
 }
 
+// Returns user data by username
 export async function getUserByUsername(username: string) {
     return await prisma.user.findUnique({
         where: {
