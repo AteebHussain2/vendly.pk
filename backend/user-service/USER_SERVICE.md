@@ -66,8 +66,10 @@ Every piece of information retrieved from the database is stored in redis-cache.
 
 For debugging purposes, all the cache tags being used along with their time-to-live (TTL) valuse and Usage Location are listed here
 
-| Tag | TTL | Location |
-| --- | --- | -------- |
+| Tag              | TTL    | Location                                |
+| ---------------- | ------ | --------------------------------------- |
+| users:{userId}   | 24 hrs | [Get User Functions](./actions/auth.ts) |
+| agents:{agentId} | 12 hrs | [Agent Functions](./actions/ai.ts)      |
 
 ## Get Serving Users
 
