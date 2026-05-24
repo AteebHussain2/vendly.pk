@@ -1,12 +1,16 @@
+import { withCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 
 // Returns user data by userId
 export async function getUserById(userId: string) {
-    return await prisma.user.findUnique({
-        where: {
-            id: userId,
-        }
-    })
+    return await withCache(`user:{userId`,
+        () => prisma.user.findUnique({
+            where: {
+                id: userId,
+            }
+        }),
+        3600 * 24,
+    )
 }
 
 // Returns user data by email

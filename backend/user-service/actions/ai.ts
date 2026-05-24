@@ -1,18 +1,24 @@
 import { AgentType, AgentVisibility } from "../lib/generated/prisma/enums";
+import { withCache } from "../lib/cache";
 import { prisma } from "../lib/prisma";
 
 export async function getAllPublicAgents() {
+    const cacheKey = "agents:public";
+
     try {
-        const agents = await prisma.agent.findMany({
-            where: { visibility: AgentVisibility.PUBLIC },
-            select: {
-                id: true,
-                name: true,
-                slug: true,
-                avatar: true,
-                type: true,
-            }
-        });
+        const agents = await withCache(cacheKey,
+            () => prisma.agent.findMany({
+                where: { visibility: AgentVisibility.PUBLIC },
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    avatar: true,
+                    type: true,
+                }
+            }),
+            3600 * 12,
+        )
 
         const mainAgentData = agents.find(agent => agent.type === AgentType.MAIN);
 
@@ -41,18 +47,29 @@ export async function getAllPublicAgents() {
 }
 
 export async function getPublicAgentInfo(slug: string) {
+    const cacheKey = `agents:public:${slug}`;
+
     try {
-        const agent = await prisma.agent.findUnique({
-            where: { slug, visibility: AgentVisibility.PUBLIC },
-            select: {
-                id: true,
-                name: true,
-                slug: true,
-                avatar: true,
-                description: true,
-                type: true
-            }
-        });
+        const agent = await withCache(cacheKey,
+            () => prisma.agent.findUnique({
+                where: { slug, visibility: AgentVisibility.PUBLIC },
+                select: {
+                    id: true,
+                    name: true,
+                    slug: true,
+                    avatar: true,
+                    description: true,
+                    type: true
+                }
+            }),
+            3600 * 12,
+        )
+
+        if (!agent) return {
+            status: 404,
+            message: "Not Found!",
+            data: agent
+        }
 
         return {
             status: 200,
