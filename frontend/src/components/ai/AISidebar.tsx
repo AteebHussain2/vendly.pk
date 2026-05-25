@@ -13,6 +13,7 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const routes = [
     {
@@ -189,21 +190,16 @@ const AgentSidebarItem = ({ data, isFreeTier = true }: {
                             href={`/ai/chat/${data.slug}`}
                             className="flex items-center space-x-1"
                         >
-                            {data.avatar ? (
-                                <Image
-                                    src={data.avatar}
-                                    alt={data.name}
-                                    width={32}
-                                    height={32}
-                                    className="size-8! p-1 border border-border bg-black/5 rounded-full"
-                                />
-                            ) : isFreeTier ? (
-                                <Lock
-                                    size={32}
-                                    className="size-8! p-1 border border-border bg-black/5 rounded-full"
-                                />
+                            {!isFreeTier ? (
+                                <Avatar className="border">
+                                    <AvatarImage
+                                        src={data?.avatar ?? undefined}
+                                        alt={data?.name}
+                                    />
+                                    <AvatarFallback>{data?.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
                             ) : (
-                                <User2
+                                <Lock
                                     size={32}
                                     className="size-8! p-1 border border-border bg-black/5 rounded-full"
                                 />
@@ -214,7 +210,7 @@ const AgentSidebarItem = ({ data, isFreeTier = true }: {
                                     {data.name}
                                 </h2>
                                 <p className="truncate line-clamp-1 text-xs text-muted-foreground">
-                                    {data.description ?? "Lets rack your dollars!"}
+                                    {data.description ?? "No Description"}
                                 </p>
                             </div>
                         </Link>

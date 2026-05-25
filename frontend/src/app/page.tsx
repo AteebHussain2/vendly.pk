@@ -10,7 +10,7 @@ import FinalCTASection from "@/components/landing/FinalCTASection";
 
 export default function Home() {
   return (
-    <>
+    <div className="w-full">
       <Navbar />
       <main className="min-h-screen bg-background">
         <HeroSection />
@@ -21,6 +21,6 @@ export default function Home() {
         <SocialProofSection />
         <FinalCTASection />
       </main>
-    </>
+    </div>
   );
 }

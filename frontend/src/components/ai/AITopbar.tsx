@@ -1,13 +1,14 @@
 "use client";
 
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { useQuery } from "@tanstack/react-query"
 import { getAgentInfo } from "@/actions/agents"
+import { Skeleton } from "../ui/skeleton";
 import { ArrowLeft } from "lucide-react"
 import { Button } from "../ui/button"
 import Image from "next/image"
 import Link from "next/link"
-import { Skeleton } from "../ui/skeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 export const AITopbar = () => {
     return (
@@ -63,23 +64,49 @@ export const AITopbar2 = ({ slug }: { slug: string }) => {
                         </div>
                     </>
                 ) : !isLoading && (
-                    <Avatar className="border">
-                        <AvatarImage
-                            src={data?.avatar ?? undefined}
-                            alt={data?.name}
-                        />
-                        <AvatarFallback>{data?.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                )}
+                    <Dialog>
+                        <DialogTrigger>
+                            <>
+                                <Avatar className="border">
+                                    <AvatarImage
+                                        src={data?.avatar ?? undefined}
+                                        alt={data?.name}
+                                    />
+                                    <AvatarFallback>{data?.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
 
-                <div className="flex flex-col items-start -space-y-0.5">
-                    <h1 className="font-semibold text-secondary-foreground">
-                        {data?.name}
-                    </h1>
-                    <p className="text-xs text-muted-foreground">
-                        {data?.description}
-                    </p>
-                </div>
+                                <div className="flex flex-col items-start -space-y-0.5">
+                                    <h1 className="font-semibold text-secondary-foreground">
+                                        {data?.name}
+                                    </h1>
+                                    <p className="text-xs text-muted-foreground">
+                                        {data?.description}
+                                    </p>
+                                </div>
+                            </>
+                        </DialogTrigger>
+
+                        <DialogContent>
+                            <DialogHeader>
+                                <Avatar className="border">
+                                    <AvatarImage
+                                        src={data?.avatar ?? undefined}
+                                        alt={data?.name}
+                                    />
+                                    <AvatarFallback>{data?.name.charAt(0)}</AvatarFallback>
+                                </Avatar>
+
+                                <DialogTitle>
+                                    {data?.name}
+                                </DialogTitle>
+
+                                <DialogDescription>
+                                    {data?.description}
+                                </DialogDescription>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+                )}
             </div>
 
             <Button variant='outline' className="border-border! cursor-pointer bg-transparent">
