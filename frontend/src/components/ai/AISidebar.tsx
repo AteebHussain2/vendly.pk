@@ -1,8 +1,9 @@
 "use client";
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "../ui/sidebar";
-import { Inbox, Library, Lock, LogOut, Plus, Search, Toolbox, User2 } from "lucide-react";
+import { Inbox, Library, Lock, LogOut, Plus, Search, Toolbox } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { getPublicAgents } from "@/actions/agents";
 import { useQuery } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
@@ -13,7 +14,6 @@ import { Badge } from "../ui/badge";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 
 const routes = [
     {
@@ -193,6 +193,7 @@ const AgentSidebarItem = ({ data, isFreeTier = true }: {
                             {!isFreeTier ? (
                                 <Avatar className="border">
                                     <AvatarImage
+                                        className="object-cover aspect-square"
                                         src={data?.avatar ?? undefined}
                                         alt={data?.name}
                                     />

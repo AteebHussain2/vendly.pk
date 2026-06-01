@@ -14,10 +14,11 @@ export async function getAllPublicAgents() {
                     name: true,
                     slug: true,
                     avatar: true,
+                    description: true,
                     type: true,
                 }
             }),
-            3600 * 12,
+            0,
         )
 
         const mainAgentData = agents.find(agent => agent.type === AgentType.MAIN);

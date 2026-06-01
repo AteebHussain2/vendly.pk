@@ -9,6 +9,7 @@ import { ArrowLeft } from "lucide-react"
 import { Button } from "../ui/button"
 import Image from "next/image"
 import Link from "next/link"
+import { ThemeToggle } from "../providers/ThemeToggle";
 
 export const AITopbar = () => {
     return (
@@ -65,10 +66,11 @@ export const AITopbar2 = ({ slug }: { slug: string }) => {
                     </>
                 ) : !isLoading && (
                     <Dialog>
-                        <DialogTrigger>
+                        <DialogTrigger className="flex items-center gap-3">
                             <>
                                 <Avatar className="border">
                                     <AvatarImage
+                                        className="object-cover aspect-square"
                                         src={data?.avatar ?? undefined}
                                         alt={data?.name}
                                     />
@@ -87,20 +89,21 @@ export const AITopbar2 = ({ slug }: { slug: string }) => {
                         </DialogTrigger>
 
                         <DialogContent>
-                            <DialogHeader>
-                                <Avatar className="border">
+                            <DialogHeader className="gap-4">
+                                <Avatar className="border size-40 mx-auto">
                                     <AvatarImage
+                                        className="object-cover aspect-square"
                                         src={data?.avatar ?? undefined}
                                         alt={data?.name}
                                     />
                                     <AvatarFallback>{data?.name.charAt(0)}</AvatarFallback>
                                 </Avatar>
 
-                                <DialogTitle>
+                                <DialogTitle className="text-3xl mx-auto">
                                     {data?.name}
                                 </DialogTitle>
 
-                                <DialogDescription>
+                                <DialogDescription className="transition-colos transition-transform bg-slate-200 dark:bg-sidebar hover:bg-slate-300 dark:hover:bg-sidebar hover:text-gray-700 dark:hover:text-white hover:-rotate-1 hover:scale-105 w-full h-full py-1 px-3 rounded-xs">
                                     {data?.description}
                                 </DialogDescription>
                             </DialogHeader>
@@ -109,6 +112,7 @@ export const AITopbar2 = ({ slug }: { slug: string }) => {
                 )}
             </div>
 
+            <ThemeToggle />
             <Button variant='outline' className="border-border! cursor-pointer bg-transparent">
                 Share
             </Button>

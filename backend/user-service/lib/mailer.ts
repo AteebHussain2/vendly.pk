@@ -60,6 +60,7 @@ transporter.verify((error, success) => {
 export async function sendOTPVerificationEmail(userId: string, email: string) {
     try {
         const otp = `${Math.floor(100000 + Math.random() * 900000)}`;
+        console.log(otp) // TODO: JUST FOR DEVELOPEMNT
         const mailOptions = {
             from: process.env.AUTH_EMAIL,
             to: email,
